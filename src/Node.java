@@ -57,7 +57,7 @@ public class Node {
 	}
 	
 	boolean canJumpDown(int row, int column) {
-		if(row == state.length || row == state.length-1)
+		if(row == state.length-1 || row == state.length-2)
 			return false;
 		if(state[row+1].charAt(column) == '1' && state[row+2].charAt(column) == '0')
 			return true;
@@ -75,7 +75,7 @@ public class Node {
 	}
 	
 	boolean canJumpRight(int row, int column) {
-		if(column == state[0].length() || column == state[0].length()-1)
+		if(column == state[0].length()-1 || column == state[0].length()-2)
 			return false;
 		if(state[row].charAt(column+1) == '1' && state[row].charAt(column+2) == '0')
 			return true;
