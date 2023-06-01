@@ -1,19 +1,22 @@
 import java.util.ArrayList;
+import java.util.BitSet;
 
 public class Node {
 
-	String[] state;
 	Node previous;
+	BitSet state;
+	static int lineLen;
+	static int lineNum;
 	
-	Node(String[] state, Node previous){
+	Node(BitSet state, Node previous){
 		this.state = state;
 		this.previous = previous;
 	}
 	
 	boolean isLast(int finalState_x, int finalState_y) {
-		for (int rows = 0; rows < state.length; ++rows) {
-			for (int columns = 0; columns < state[0].length(); ++columns) {
-				if(state[rows].charAt(columns) == '1' && (rows != finalState_x || columns != finalState_y)) {
+		for (int rows = 0; rows < lineNum; ++rows) {
+			for (int columns = 0; columns < lineLen; ++columns) {
+				if(charAt(rows, columns) == '1' && (rows != finalState_x || columns != finalState_y)) {
 					return false;
 				}
 			}
@@ -25,9 +28,9 @@ public class Node {
 		
 		ArrayList<Node> allStates = new ArrayList<Node>();
 		
-		for(int row = 0; row < state.length; row++) {
-			for(int column = 0; column < state[0].length(); column++) {
-				if(state[row].charAt(column) == '1'){
+		for(int row = 0; row < lineNum; row++) {
+			for(int column = 0; column < lineLen; column++) {
+				if(charAt(row, column) == '1'){
 					if(canJumpUp(row, column)) {
 						allStates.add(createNewStateUp(row, column));
 					}
@@ -50,16 +53,16 @@ public class Node {
 	boolean canJumpUp(int row, int column) {
 		if(row == 0 || row == 1)
 			return false;
-		if(state[row-1].charAt(column) == '1' && state[row-2].charAt(column) == '0')
+		if(charAt(row-1, column) == '1' && charAt(row-2, column) == '0')
 			return true;
 		else
 			return false;
 	}
 	
 	boolean canJumpDown(int row, int column) {
-		if(row == state.length-1 || row == state.length-2)
+		if(row == lineNum-1 || row == lineNum-2)
 			return false;
-		if(state[row+1].charAt(column) == '1' && state[row+2].charAt(column) == '0')
+		if(charAt(row+1, column) == '1' && charAt(row+2, column) == '0')
 			return true;
 		else
 			return false;
@@ -68,96 +71,96 @@ public class Node {
 	boolean canJumpLeft(int row, int column) {
 		if(column == 0 || column == 1)
 			return false;
-		if(state[row].charAt(column-1) == '1' && state[row].charAt(column-2) == '0')
+		if(charAt(row, column-1) == '1' && charAt(row, column-2) == '0')
 			return true;
 		else
 			return false;
 	}
 	
 	boolean canJumpRight(int row, int column) {
-		if(column == state[0].length()-1 || column == state[0].length()-2)
+		if(column == lineLen-1 || column == lineLen-2)
 			return false;
-		if(state[row].charAt(column+1) == '1' && state[row].charAt(column+2) == '0')
+		if(charAt(row, column+1) == '1' && charAt(row, column+2) == '0')
 			return true;
 		else
 			return false;
 	}
 	
 	Node createNewStateUp(int row, int column) {
-		String[] newState = state.clone();
+		Node newNode = new Node((BitSet) state.clone(), this);
+
+		newNode.setChar0(row, column);
+		newNode.setChar0(row-1, column);
+		newNode.setChar1(row-2, column);
 		
-		char[] newRow = newState[row].toCharArray();
-		newRow[column] = '0';
-		newState[row] = String.valueOf(newRow);
-		
-		newRow = newState[row-1].toCharArray();
-		newRow[column] = '0';
-		newState[row-1] = String.valueOf(newRow);
-		
-		newRow = newState[row-2].toCharArray();
-		newRow[column] = '1';
-		newState[row-2] = String.valueOf(newRow);
-	
-		return new Node(newState, this);
-	}
+		/*System.out.println("Original:");
+		printState();
+		System.out.println("New:");
+		newNode.printState();*/
+
+
+		return newNode;}
 	
 	Node createNewStateDown(int row, int column) {
-		String[] newState = state.clone();
-		
-		char[] newRow = newState[row].toCharArray();
-		newRow[column] = '0';
-		newState[row] = String.valueOf(newRow);
-		
-		newRow = newState[row+1].toCharArray();
-		newRow[column] = '0';
-		newState[row+1] = String.valueOf(newRow);
-		
-		newRow = newState[row+2].toCharArray();
-		newRow[column] = '1';
-		newState[row+2] = String.valueOf(newRow);
-	
-		return new Node(newState, this);
-	}
+		Node newNode = new Node((BitSet) state.clone(), this);
+
+		newNode.setChar0(row, column);
+		newNode.setChar0(row+1, column);
+		newNode.setChar1(row+2, column);
+
+		return newNode;
+		}
 	
 	Node createNewStateLeft(int row, int column) {
-		String[] newState = state.clone();
-		
-		char[] newRow = newState[row].toCharArray();
-		newRow[column] = '0';
-		newState[row] = String.valueOf(newRow);
-		
-		newRow = newState[row].toCharArray();
-		newRow[column-1] = '0';
-		newState[row] = String.valueOf(newRow);
-		
-		newRow = newState[row].toCharArray();
-		newRow[column-2] = '1';
-		newState[row] = String.valueOf(newRow);
-	
-		return new Node(newState, this);
+		Node newNode = new Node((BitSet) state.clone(), this);
+
+		newNode.setChar0(row, column);
+		newNode.setChar0(row, column-1);
+		newNode.setChar1(row, column-2);
+
+		return newNode;
 	}
 	
-	Node createNewStateRight(int row, int column) {
-		String[] newState = state.clone();
-		
-		char[] newRow = newState[row].toCharArray();
-		newRow[column] = '0';
-		newState[row] = String.valueOf(newRow);
-		
-		newRow = newState[row].toCharArray();
-		newRow[column+1] = '0';
-		newState[row] = String.valueOf(newRow);
-		
-		newRow = newState[row].toCharArray();
-		newRow[column+2] = '1';
-		newState[row] = String.valueOf(newRow);
-	
-		return new Node(newState, this);
+	Node createNewStateRight(int row, int column) {		
+		Node newNode = new Node((BitSet) state.clone(), this);
+
+		newNode.setChar0(row, column);
+		newNode.setChar0(row, column+1);
+		newNode.setChar1(row, column+2);
+
+		return newNode;
 	}
 
 	void printState() {
-		for(String s : state)
-			System.out.println(s);
+		for(int row = 0; row < lineNum; row++) {
+			for(int column = 0; column < lineLen; column++) {
+				System.out.print(charAt(row, column));
+			}
+			System.out.println();
+		}
 		System.out.println();
+	}
+	
+	char charAt(int row, int column) {
+		if(state.get(row*lineLen*2 + 2*column) == true 
+				&& state.get(row*lineLen*2 + 2*column + 1) == true)
+			return 'x';
+		if(state.get(row*lineLen*2 + 2*column) == false 
+				&& state.get(row*lineLen*2 + 2*column + 1) == true)
+			return '0';
+		if(state.get(row*lineLen*2 + 2*column) == true 
+				&& state.get(row*lineLen*2 + 2*column + 1) == false)
+			return '1';
+		return '\0';
+	}
+	
+	void setChar0(int row, int column) {
+		state.set(row*lineLen*2 + 2*column, false);
+		state.set(row*lineLen*2 + 2*column + 1, true);
+	}
+	
+	void setChar1(int row, int column) {
+		state.set(row*lineLen*2 + 2*column);
+		state.set(row*lineLen*2 + 2*column + 1, false);
 	}
 }

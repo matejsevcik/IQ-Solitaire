@@ -34,13 +34,37 @@ xx000xx
 xx000xx
 
 __________
-4-Pyramida
+5-Stolna lampa
 
 3-3
-xx000xx
 xx010xx
-0011100
+xx111xx
 0111110
+0001000
+0001000
+xx111xx
+xx111xx
+
+__________
+6-Pootoceny stvorec
+
+3-3
+xx010xx
+xx111xx
+0111110
+1110111
+0111110
+xx111xx
+xx010xx
+
+__________
+7-Obvodova stena
+
+3-3
+xx111xx
+xx111xx
 1111111
-xx000xx
-xx000xx
+1110111
+1111111
+xx111xx
+xx111xx
