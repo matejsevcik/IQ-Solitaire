@@ -13,15 +13,51 @@ public class Node {
 		this.previous = previous;
 	}
 	
-	boolean isLast(int finalState_x, int finalState_y) {
+	boolean isLast(int[][] finalSquares) {
+		//deleteThis(finalSquares);
+		//printState();
 		for (int rows = 0; rows < lineNum; ++rows) {
 			for (int columns = 0; columns < lineLen; ++columns) {
-				if(charAt(rows, columns) == '1' && (rows != finalState_x || columns != finalState_y)) {
-					return false;
+				if(charAt(rows, columns) == '1') {
+					boolean any = false;
+					for(int[] square : finalSquares) {
+						if(rows == square[1] && columns == square[0]) {
+							any = true;
+							break;
+						}
+					}
+					if (any == false)
+						return false;
 				}
 			}
 		}
+		
+		for(int[] square : finalSquares) {
+			if(charAt(square[1], square[0]) == '0')
+				return false;
+		}
+		
 		return true;
+	}
+	
+	int ones() {
+		int ones = 0;
+		for(int row = 0; row < lineNum; row++) {
+			for(int column = 0; column < lineLen; column++) {
+				if(charAt(row, column) == '1')
+					ones++;
+			}
+		}
+		
+		return ones;
+	}
+	
+	boolean isRelevant(int targetSquares, int ones) {
+
+		if(ones >= targetSquares)
+			return true;
+
+		return false;
 	}
 	
 	ArrayList<Node> generateStates() {
@@ -92,12 +128,6 @@ public class Node {
 		newNode.setChar0(row, column);
 		newNode.setChar0(row-1, column);
 		newNode.setChar1(row-2, column);
-		
-		/*System.out.println("Original:");
-		printState();
-		System.out.println("New:");
-		newNode.printState();*/
-
 
 		return newNode;}
 	

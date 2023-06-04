@@ -4,16 +4,20 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.BitSet;
 
-public class Tree {
+public class Tree{
 
 	RandomAccessFile input;
 	Node firstNode;
 	Node solution;
-	int finalState_x;
-	int finalState_y;
-	int totalNodes = 1;
+	int finalSquares[][];
+	long nodesCreated = 1;
+	long nodesProcessed = 0;
+	
+	ArrayList<Node> leafStates;
 	
 	Tree(){
+		leafStates = new ArrayList<Node>();
+		
 		try {
 			input = new RandomAccessFile("input.txt", "r");
 		} catch (FileNotFoundException e) {
@@ -22,21 +26,31 @@ public class Tree {
 		}
 		String[] line;
 		try {
-			line = input.readLine().split("-");
-			finalState_x = Integer.parseInt(line[0]);
-			finalState_y = Integer.parseInt(line[1]);
+			line = input.readLine().split("/");
+			int finalSquaresAmount = line.length;
+			int i = 0;
+			finalSquares = new int[finalSquaresAmount][];
+			for(String position : line) {
+				String[] coordinates = position.split("-");
+				finalSquares[i] = new int[2];
+				finalSquares[i][0] = Integer.parseInt(coordinates[0]);
+				finalSquares[i][1] = Integer.parseInt(coordinates[1]);
+				i++;
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		String[] startingPosition = new String[finalState_x*2 + 1];
+		String[] startingPosition = null;
 		String fullLine;
 		
 		int index = 0;
 		
 		try {
 			while ((fullLine = input.readLine()) != null) {
+				if(startingPosition == null)
+					startingPosition = new String[fullLine.length()];
 				startingPosition[index] = fullLine;
 				index++;
 			}
@@ -52,8 +66,8 @@ public class Tree {
 		BitSet firstState = createState(startingPosition, totalSize, Node.lineLen);
 		
 		firstNode = new Node(firstState, null);
-		
-		solution = solve();
+
+		solve();
 		printSolution();
 	}
 	
@@ -74,57 +88,86 @@ public class Tree {
 		return bitSet;
 	}
 	
-	//BFS solution (too memory-intensive)
-	
-	/*Node solve() {
-		Node solution = null;
-		ArrayList<Node> leafStates = new ArrayList<Node>();
-		ArrayList<Node> nextLeaves = new ArrayList<Node>();
-		leafStates = firstNode.generateStates();
-		
-		while(!leafStates.isEmpty()) {
-			for(Node leaf : leafStates) {
-				if(leaf.isLast(finalState_x, finalState_y)) {
-					solution = leaf;
-					break;
-				}
-				ArrayList<Node> newLeaves = leaf.generateStates();
-				for(Node n : newLeaves)
-					nextLeaves.add(n);
-			}
-			if(solution != null)
-				break;
-			leafStates.clear();
-			leafStates.addAll(nextLeaves);
-			System.out.println(nextLeaves.size());
-			nextLeaves.clear();
+	void solve() {
+		if(firstNode.isLast(finalSquares)) {
+			this.solution = firstNode;
+			return;
 		}
 		
-		return solution;
-	}*/
+		leafStates.add(firstNode);
+		
+		//solveBFS();
+		solveDFS();
+		
+	}
+	
+	//BFS solution (usually memory-intensive, but is more effective with inputs 7,)
+	
+	void solveBFS() {
+		ArrayList<Node> leafStates = new ArrayList<Node>();
+		ArrayList<Node> nextLeaves = new ArrayList<Node>();
+		leafStates.add(firstNode);
+
+		for(int i = 0; i < 9; i++) {
+			for(Node leaf : leafStates) {
+				nodesProcessed++;
+				int ones = leaf.ones();
+				if(leaf.isRelevant(finalSquares.length, ones)) {
+					if(ones == finalSquares.length) {
+						if(leaf.isLast(finalSquares)) {
+							solution = leaf;
+							return;
+						}
+					}
+					ArrayList<Node> newLeaves = leaf.generateStates();
+					nodesCreated += newLeaves.size();
+					for(Node n : newLeaves) {
+						nextLeaves.add(n);
+					}
+				}
+			}
+
+			leafStates.clear();
+			leafStates.addAll(nextLeaves);
+			System.out.println("Following level size: " + i + " - " + nextLeaves.size());
+			nextLeaves.clear();
+		}
+	}
 	
 	//DFS solution
 	
-	Node solve() {
-		Node solution = null;
-		ArrayList<Node> leafStates = firstNode.generateStates();
+	void solveDFS() {
+		long i = 0;
 		
 		while(!leafStates.isEmpty()){
-			Node node = leafStates.remove(leafStates.size()-1);
+			Node node;
+			i++;
+			if(i%10000000 == 0) {
+				System.out.println("Nodes created yet: " + nodesCreated);
+				System.out.println("Nodes processed yet: " + nodesProcessed);
+			}
+			if(i%200 == 0)
+				node = leafStates.remove((int)(Math.random()*(leafStates.size()-1)));
+			else
+				node = leafStates.remove(leafStates.size()-1);
+			nodesProcessed++;
 			ArrayList<Node> newNodes = node.generateStates();
-			totalNodes += newNodes.size();
+			nodesCreated += newNodes.size();
 			for(Node n : newNodes) {
-				leafStates.add(n);
-				if(n.isLast(finalState_x, finalState_y)) {
-					solution = n;
-					break;
+				int ones = n.ones();
+				if(n.isRelevant(finalSquares.length, ones)) {
+					leafStates.add(n);
+					if(ones == finalSquares.length) {
+						if(n.isLast(finalSquares)) {
+							solution = n;
+							return;
+						}
+					}
 				}
 			}
 			if(solution != null)
 				break;
 		}
-		
-		return solution;
 	}
 
 	void printSolution() {
@@ -137,7 +180,8 @@ public class Tree {
 		for(Node n:sequence) {
 			n.printState();
 		}
-		System.out.println("\nTotal number of nodes processed: " + totalNodes);
+		System.out.println("\nTotal number of nodes created: " + nodesCreated);
+		System.out.println("\nTotal number of nodes processed: " + nodesProcessed);
 	}
 	
 }
