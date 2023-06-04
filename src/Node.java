@@ -60,6 +60,98 @@ public class Node {
 		return false;
 	}
 	
+	boolean equalStates(Node node) {
+		
+		node.printState();
+		
+		Node left = new Node(node.rotateState(), null);
+		Node right = new Node(left.reverseState(), null);
+		Node down = new Node(node.reverseState(), null);
+		
+		left.printState();
+		down.printState();
+		right.printState();
+		
+		return false;
+	}
+	
+	BitSet reverseState() {
+		BitSet reversedState = new BitSet(state.size());
+		for(int row = 0; row < lineNum; row++) {
+			for(int column = 0; column < lineLen; column++) {
+				switch(charAt(row, column)) {
+					case('x'):
+						int position = lineLen*lineNum*2-(row*lineLen*2 + column*2);
+						reversedState.set(position-1);
+						reversedState.set(position-2);
+						break;
+					case('0'):
+						position = lineLen*lineNum*2-(row*lineLen*2 + column*2);
+						reversedState.set(position-1);
+						break;
+					case('1'):
+						position = lineLen*lineNum*2-(row*lineLen*2 + column*2);
+						reversedState.set(position-2);
+						break;
+				}
+			}
+		}
+		return reversedState;
+	}
+	
+	BitSet rotateState() {
+		BitSet rotatedState = new BitSet(state.size());
+		
+		for(int row = 0; row < lineNum; row++) {
+			for(int column = 0; column < lineLen; column++) {
+				char c = charAt(row, column);
+				switch (c) {
+					case('x'):
+						int newRow = (int)Math.ceil((float)column);
+						int newColumn = (lineLen-row-1)*2;
+						int position = newRow*lineLen*2 + newColumn;
+						rotatedState.set(position);
+						rotatedState.set(position + 1);
+						
+						//new Node(rotatedState, null).printState();
+						break;
+						
+					case('1'):
+						newRow = (int)Math.ceil((float)column);
+						newColumn = (lineLen-row-1)*2;
+						position = newRow*lineLen*2  + newColumn;
+						rotatedState.set(position);
+						
+						//new Node(rotatedState, null).printState();
+						break;
+	
+					case('0'):
+						newRow = (int)Math.ceil((float)column);
+						newColumn = (lineLen-row-1)*2;
+						position = newRow*lineLen*2 + newColumn;
+						rotatedState.set(position + 1);
+						
+						//new Node(rotatedState, null).printState();
+						break;
+				}
+			}
+		}
+		
+		/*BitSet[] columns = new BitSet[lineNum];
+		
+		for(BitSet column: columns) {
+			column = new BitSet(lineLen*2);
+			
+			for(int i = 0; i < lineLen*2; i++) {
+				if(original.get(i) == true)
+					column.set(i);
+			}
+		}*/
+		
+		
+		return rotatedState;
+	}
+	
 	ArrayList<Node> generateStates() {
 		
 		ArrayList<Node> allStates = new ArrayList<Node>();

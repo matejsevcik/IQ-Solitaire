@@ -96,12 +96,14 @@ public class Tree{
 		
 		leafStates.add(firstNode);
 		
-		//solveBFS();
+		firstNode.equalStates(firstNode);
+		
+		solveBFS();
 		solveDFS();
 		
 	}
 	
-	//BFS solution (usually memory-intensive, but is more effective with inputs 7,)
+	//BFS solution 
 	
 	void solveBFS() {
 		ArrayList<Node> leafStates = new ArrayList<Node>();
