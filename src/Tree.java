@@ -96,8 +96,6 @@ public class Tree{
 		
 		leafStates.add(firstNode);
 		
-		firstNode.equalStates(firstNode);
-		
 		solveBFS();
 		solveDFS();
 		
@@ -106,11 +104,9 @@ public class Tree{
 	//BFS solution 
 	
 	void solveBFS() {
-		ArrayList<Node> leafStates = new ArrayList<Node>();
 		ArrayList<Node> nextLeaves = new ArrayList<Node>();
-		leafStates.add(firstNode);
 
-		for(int i = 0; i < 9; i++) {
+		for(int i = 0; i < 8; i++) {
 			for(Node leaf : leafStates) {
 				nodesProcessed++;
 				int ones = leaf.ones();
@@ -124,14 +120,22 @@ public class Tree{
 					ArrayList<Node> newLeaves = leaf.generateStates();
 					nodesCreated += newLeaves.size();
 					for(Node n : newLeaves) {
-						nextLeaves.add(n);
+						boolean uniqueFlag = true;
+						for(Node nextLeaf: nextLeaves) {
+							if(n.compareNodes(nextLeaf)) {
+								uniqueFlag = false;
+								break;
+							}
+						}
+						if(uniqueFlag)
+							nextLeaves.add(n);
 					}
 				}
 			}
 
 			leafStates.clear();
 			leafStates.addAll(nextLeaves);
-			System.out.println("Following level size: " + i + " - " + nextLeaves.size());
+			System.out.println("Level: " + i + " Size: " + nextLeaves.size());
 			nextLeaves.clear();
 		}
 	}

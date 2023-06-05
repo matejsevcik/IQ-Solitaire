@@ -60,19 +60,48 @@ public class Node {
 		return false;
 	}
 	
-	boolean equalStates(Node node) {
-		
-		node.printState();
+	boolean compareNodes(Node node) {
+
 		
 		Node left = new Node(node.rotateState(), null);
-		Node right = new Node(left.reverseState(), null);
 		Node down = new Node(node.reverseState(), null);
+		Node right = new Node(left.reverseState(), null);
 		
-		left.printState();
-		down.printState();
-		right.printState();
+		if(state.equals(node.state) || state.equals(left.state) 
+				|| state.equals(down.state) || state.equals(right.state))
+			return true;
+				
+		if(state.equals(node.mirrorState()) || state.equals(left.mirrorState()) 
+				|| state.equals(down.mirrorState()) || state.equals(right.mirrorState()))
+			return true;
 		
 		return false;
+	}
+	
+	BitSet mirrorState() {
+		BitSet mirrorState = new BitSet(state.size());
+		
+		for(int row = 0; row < lineNum; row++) {
+			for(int column = 0; column < lineLen; column++) {
+				switch(charAt(row, column)) {
+					case('x'):
+						int position = row*lineLen*2 + lineLen*2 - column*2;
+						mirrorState.set(position-1);
+						mirrorState.set(position-2);
+						break;
+					case('0'):
+						position = row*lineLen*2 + lineLen*2 - column*2;
+						mirrorState.set(position-1);
+						break;
+					case('1'):
+						position = row*lineLen*2 + lineLen*2 - column*2;
+						mirrorState.set(position-2);
+						break;
+				}
+			}
+		}
+		
+		return mirrorState;
 	}
 	
 	BitSet reverseState() {
@@ -104,50 +133,25 @@ public class Node {
 		
 		for(int row = 0; row < lineNum; row++) {
 			for(int column = 0; column < lineLen; column++) {
-				char c = charAt(row, column);
-				switch (c) {
+				switch (charAt(row, column)) {
 					case('x'):
-						int newRow = (int)Math.ceil((float)column);
-						int newColumn = (lineLen-row-1)*2;
-						int position = newRow*lineLen*2 + newColumn;
+						int position = (int)Math.ceil((float)column)*lineLen*2 + (lineLen-row-1)*2;
 						rotatedState.set(position);
 						rotatedState.set(position + 1);
-						
-						//new Node(rotatedState, null).printState();
 						break;
 						
 					case('1'):
-						newRow = (int)Math.ceil((float)column);
-						newColumn = (lineLen-row-1)*2;
-						position = newRow*lineLen*2  + newColumn;
+						position = (int)Math.ceil((float)column)*lineLen*2 + (lineLen-row-1)*2;
 						rotatedState.set(position);
-						
-						//new Node(rotatedState, null).printState();
 						break;
 	
 					case('0'):
-						newRow = (int)Math.ceil((float)column);
-						newColumn = (lineLen-row-1)*2;
-						position = newRow*lineLen*2 + newColumn;
+						position = (int)Math.ceil((float)column)*lineLen*2 + (lineLen-row-1)*2;
 						rotatedState.set(position + 1);
-						
-						//new Node(rotatedState, null).printState();
 						break;
 				}
 			}
 		}
-		
-		/*BitSet[] columns = new BitSet[lineNum];
-		
-		for(BitSet column: columns) {
-			column = new BitSet(lineLen*2);
-			
-			for(int i = 0; i < lineLen*2; i++) {
-				if(original.get(i) == true)
-					column.set(i);
-			}
-		}*/
-		
 		
 		return rotatedState;
 	}
