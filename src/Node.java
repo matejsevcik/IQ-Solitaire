@@ -1,8 +1,14 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.BitSet;
 
-public class Node {
+public class Node implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	Node previous;
 	BitSet state;
 	static int lineLen;
@@ -13,9 +19,37 @@ public class Node {
 		this.previous = previous;
 	}
 	
+	long hash() {
+		
+		int squares = lineLen/2+1;
+		int[] numbersOfOnes = new int[squares];
+		
+		for(int row = 0; row < lineNum; row++) {
+			for(int column = 0; column < lineNum; column++) {
+				if(charAt(row, column) == '1') {
+					if(row == 0 || column == 0 || row == lineNum-1 || column == lineLen-1)
+						numbersOfOnes[3]++;
+					else if(row == 1 || column == 1 || row == lineNum-2 || column == lineLen-2)
+						numbersOfOnes[2]++;
+					else if(row == 2 || column == 2 || row == lineNum-3 || column == lineLen-3)
+						numbersOfOnes[1]++;
+					else if(row == 3 || column == 3 || row == lineNum-4 || column == lineLen-4)
+						numbersOfOnes[0]++;
+				}
+			}
+		}
+		
+		long hash = 0;
+		
+		for(int i = 0; i < numbersOfOnes.length; i++) {
+			//hash += Math.pow(13, numbersOfOnes[i]);
+			hash += numbersOfOnes[i]*Math.pow(3, i);
+		}
+		
+		return hash;
+	}
+	
 	boolean isLast(int[][] finalSquares) {
-		//deleteThis(finalSquares);
-		//printState();
 		for (int rows = 0; rows < lineNum; ++rows) {
 			for (int columns = 0; columns < lineLen; ++columns) {
 				if(charAt(rows, columns) == '1') {

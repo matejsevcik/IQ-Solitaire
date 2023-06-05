@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.io.*;
 
 public class Tree{
 
@@ -94,9 +95,23 @@ public class Tree{
 			return;
 		}
 		
-		leafStates.add(firstNode);
+	      try {
+	         //FileInputStream fileIn = new FileInputStream("states.ser"); //for bfs
+	    	 FileInputStream fileIn = new FileInputStream("nodes2.ser"); //for dfs
+	         ObjectInputStream in = new ObjectInputStream(fileIn);
+	         leafStates = (ArrayList<Node>) in.readObject();
+	         in.close();
+	         fileIn.close();
+	      } catch (IOException i) {
+	         i.printStackTrace();
+	         leafStates.add(firstNode);
+	      } catch (ClassNotFoundException c) {
+	         System.out.println("Employee class not found");
+	         c.printStackTrace();
+	         leafStates.add(firstNode);
+	      }
 		
-		solveBFS();
+		//solveBFS();
 		solveDFS();
 		
 	}
@@ -104,9 +119,14 @@ public class Tree{
 	//BFS solution 
 	
 	void solveBFS() {
-		ArrayList<Node> nextLeaves = new ArrayList<Node>();
+		
+		int hashSize = 1500;
+		ArrayList<ArrayList<Node>> nextLeaves = new ArrayList<ArrayList<Node>>();
 
-		for(int i = 0; i < 8; i++) {
+		for(int i = 0; i < hashSize; i++)
+			nextLeaves.add(new ArrayList<Node>());
+		
+		for(int i = 0; i < 10; i++) {
 			for(Node leaf : leafStates) {
 				nodesProcessed++;
 				int ones = leaf.ones();
@@ -120,23 +140,41 @@ public class Tree{
 					ArrayList<Node> newLeaves = leaf.generateStates();
 					nodesCreated += newLeaves.size();
 					for(Node n : newLeaves) {
+						long hash = n.hash()%hashSize;
+						ArrayList<Node> hashGroup = nextLeaves.get((int) hash);
 						boolean uniqueFlag = true;
-						for(Node nextLeaf: nextLeaves) {
+						for(Node nextLeaf: hashGroup) {
 							if(n.compareNodes(nextLeaf)) {
 								uniqueFlag = false;
 								break;
 							}
 						}
 						if(uniqueFlag)
-							nextLeaves.add(n);
+							hashGroup.add(n);
 					}
 				}
 			}
 
 			leafStates.clear();
-			leafStates.addAll(nextLeaves);
-			System.out.println("Level: " + i + " Size: " + nextLeaves.size());
-			nextLeaves.clear();
+			for(ArrayList<Node> arr : nextLeaves) {
+				leafStates.addAll(arr);
+				arr.clear();
+			}
+			System.out.println("Level: " + i + " Size: " + leafStates.size());
+			
+			if(i == 4) {
+				try {
+					 FileOutputStream fileOut =
+			         new FileOutputStream("states.ser");
+			         ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			         out.writeObject(leafStates);
+			         out.close();
+			         fileOut.close();
+				}
+				catch(IOException  e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 	
@@ -151,11 +189,29 @@ public class Tree{
 			if(i%10000000 == 0) {
 				System.out.println("Nodes created yet: " + nodesCreated);
 				System.out.println("Nodes processed yet: " + nodesProcessed);
+				System.out.println("Current leafNodes size: " + leafStates.size());
 			}
-			if(i%200 == 0)
+			if(i%50000000 == 0) {
+				try {
+					 FileOutputStream fileOut =
+			         new FileOutputStream("nodes2.ser");
+			         ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			         out.writeObject(leafStates);
+			         out.close();
+			         fileOut.close();
+			         System.out.println("Progress saved\n");
+				}
+				catch(IOException  e) {
+					e.printStackTrace();
+				}
+			}
+			//if(i%200000000 == 0)
+				//return;
+			if(i%200 == 201)//nezabudni na toto xd...
 				node = leafStates.remove((int)(Math.random()*(leafStates.size()-1)));
 			else
 				node = leafStates.remove(leafStates.size()-1);
+			
 			nodesProcessed++;
 			ArrayList<Node> newNodes = node.generateStates();
 			nodesCreated += newNodes.size();
@@ -171,8 +227,7 @@ public class Tree{
 					}
 				}
 			}
-			if(solution != null)
-				break;
+			
 		}
 	}
 
