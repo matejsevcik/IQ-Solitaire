@@ -1,14 +1,8 @@
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.BitSet;
 
-public class Node implements Serializable{
+public class Node{
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
 	Node previous;
 	BitSet state;
 	static int lineLen;

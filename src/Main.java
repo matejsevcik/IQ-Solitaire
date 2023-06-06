@@ -5,6 +5,6 @@ public class Main {
 		// TODO Auto-generated method stub
 		
 		Tree t = new Tree();
-		
+		t.solve();
 		}
 }

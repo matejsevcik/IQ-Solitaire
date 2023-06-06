@@ -3,11 +3,9 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.io.*;
 
 public class Tree{
 
-	RandomAccessFile input;
 	Node firstNode;
 	Node solution;
 	int finalSquares[][];
@@ -18,6 +16,11 @@ public class Tree{
 	
 	Tree(){
 		leafStates = new ArrayList<Node>();
+		readInput();
+	}
+	
+	void readInput() {
+		RandomAccessFile input = null;
 		
 		try {
 			input = new RandomAccessFile("input.txt", "r");
@@ -67,9 +70,6 @@ public class Tree{
 		BitSet firstState = createState(startingPosition, totalSize, Node.lineLen);
 		
 		firstNode = new Node(firstState, null);
-
-		solve();
-		printSolution();
 	}
 	
 	BitSet createState(String[] stringState, int totalSize, int lineLen){
@@ -91,32 +91,19 @@ public class Tree{
 	
 	void solve() {
 		if(firstNode.isLast(finalSquares)) {
-			this.solution = firstNode;
+			solution = firstNode;
 			return;
 		}
-		
-	      try {
-	         //FileInputStream fileIn = new FileInputStream("states.ser"); //for bfs
-	    	 FileInputStream fileIn = new FileInputStream("nodes2.ser"); //for dfs
-	         ObjectInputStream in = new ObjectInputStream(fileIn);
-	         leafStates = (ArrayList<Node>) in.readObject();
-	         in.close();
-	         fileIn.close();
-	      } catch (IOException i) {
-	         i.printStackTrace();
-	         leafStates.add(firstNode);
-	      } catch (ClassNotFoundException c) {
-	         System.out.println("Employee class not found");
-	         c.printStackTrace();
-	         leafStates.add(firstNode);
-	      }
-		
-		//solveBFS();
-		solveDFS();
-		
+		else {
+			leafStates.add(firstNode);
+
+			solveBFS(); //pretty much unnecessary, but I have already written it
+			solveDFS();
+		}
+		printSolution();
 	}
 	
-	//BFS solution 
+	//BFS
 	
 	void solveBFS() {
 		
@@ -126,7 +113,7 @@ public class Tree{
 		for(int i = 0; i < hashSize; i++)
 			nextLeaves.add(new ArrayList<Node>());
 		
-		for(int i = 0; i < 10; i++) {
+		for(int i = 0; i < 4; i++) {
 			for(Node leaf : leafStates) {
 				nodesProcessed++;
 				int ones = leaf.ones();
@@ -161,24 +148,10 @@ public class Tree{
 				arr.clear();
 			}
 			System.out.println("Level: " + i + " Size: " + leafStates.size());
-			
-			if(i == 4) {
-				try {
-					 FileOutputStream fileOut =
-			         new FileOutputStream("states.ser");
-			         ObjectOutputStream out = new ObjectOutputStream(fileOut);
-			         out.writeObject(leafStates);
-			         out.close();
-			         fileOut.close();
-				}
-				catch(IOException  e) {
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 	
-	//DFS solution
+	//DFS
 	
 	void solveDFS() {
 		long i = 0;
@@ -191,23 +164,7 @@ public class Tree{
 				System.out.println("Nodes processed yet: " + nodesProcessed);
 				System.out.println("Current leafNodes size: " + leafStates.size());
 			}
-			if(i%50000000 == 0) {
-				try {
-					 FileOutputStream fileOut =
-			         new FileOutputStream("nodes2.ser");
-			         ObjectOutputStream out = new ObjectOutputStream(fileOut);
-			         out.writeObject(leafStates);
-			         out.close();
-			         fileOut.close();
-			         System.out.println("Progress saved\n");
-				}
-				catch(IOException  e) {
-					e.printStackTrace();
-				}
-			}
-			//if(i%200000000 == 0)
-				//return;
-			if(i%200 == 201)//nezabudni na toto xd...
+			if(i%200 == 0)
 				node = leafStates.remove((int)(Math.random()*(leafStates.size()-1)));
 			else
 				node = leafStates.remove(leafStates.size()-1);

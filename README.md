@@ -15,3 +15,6 @@ xx010xx<br>
 0001000<br>
 xx000xx<br>
 xx000xx<br>
+
+
+Running with inputs 8 and 9 is not recommended. To solve them, use the reverse-engineering branch.
